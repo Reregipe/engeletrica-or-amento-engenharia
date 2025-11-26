@@ -9,9 +9,30 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import engeletricaLogo from "@/assets/engeletrica-logo.png";
 
+const formatCPF = (value: string) => {
+  const numbers = value.replace(/\D/g, "");
+  if (numbers.length <= 11) {
+    return numbers
+      .replace(/(\d{3})(\d)/, "$1.$2")
+      .replace(/(\d{3})(\d)/, "$1.$2")
+      .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+  }
+  return value;
+};
+
+const validateCPF = (cpf: string) => {
+  const numbers = cpf.replace(/\D/g, "");
+  return numbers.length === 11;
+};
+
+const cpfToEmail = (cpf: string) => {
+  const numbers = cpf.replace(/\D/g, "");
+  return `${numbers}@engeletrica.internal`;
+};
+
 const Auth = () => {
   const [loading, setLoading] = useState(false);
-  const [email, setEmail] = useState("");
+  const [cpf, setCpf] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const navigate = useNavigate();
@@ -28,10 +49,20 @@ const Auth = () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!validateCPF(cpf)) {
+      toast({
+        variant: "destructive",
+        title: "CPF inválido",
+        description: "Por favor, insira um CPF válido com 11 dígitos",
+      });
+      return;
+    }
+
     setLoading(true);
 
     const { error } = await supabase.auth.signInWithPassword({
-      email,
+      email: cpfToEmail(cpf),
       password,
     });
 
@@ -54,15 +85,26 @@ const Auth = () => {
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!validateCPF(cpf)) {
+      toast({
+        variant: "destructive",
+        title: "CPF inválido",
+        description: "Por favor, insira um CPF válido com 11 dígitos",
+      });
+      return;
+    }
+
     setLoading(true);
 
     const { error } = await supabase.auth.signUp({
-      email,
+      email: cpfToEmail(cpf),
       password,
       options: {
         emailRedirectTo: `${window.location.origin}/`,
         data: {
           full_name: fullName,
+          cpf: cpf.replace(/\D/g, ""),
         },
       },
     });
@@ -111,13 +153,14 @@ const Auth = () => {
             <TabsContent value="login">
               <form onSubmit={handleLogin} className="space-y-4 mt-4">
                 <div className="space-y-2">
-                  <Label htmlFor="login-email">E-mail</Label>
+                  <Label htmlFor="login-cpf">CPF</Label>
                   <Input
-                    id="login-email"
-                    type="email"
-                    placeholder="seu@email.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    id="login-cpf"
+                    type="text"
+                    placeholder="000.000.000-00"
+                    value={cpf}
+                    onChange={(e) => setCpf(formatCPF(e.target.value))}
+                    maxLength={14}
                     required
                   />
                 </div>
@@ -156,13 +199,14 @@ const Auth = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="signup-email">E-mail</Label>
+                  <Label htmlFor="signup-cpf">CPF</Label>
                   <Input
-                    id="signup-email"
-                    type="email"
-                    placeholder="seu@email.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    id="signup-cpf"
+                    type="text"
+                    placeholder="000.000.000-00"
+                    value={cpf}
+                    onChange={(e) => setCpf(formatCPF(e.target.value))}
+                    maxLength={14}
                     required
                   />
                 </div>
