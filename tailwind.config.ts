@@ -47,6 +47,13 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        engeletrica: {
+          blue: "hsl(var(--engeletrica-blue))",
+          "blue-light": "hsl(var(--engeletrica-blue-light))",
+          gray: "hsl(var(--engeletrica-gray))",
+          "gray-dark": "hsl(var(--engeletrica-gray-dark))",
+          "gray-text": "hsl(var(--engeletrica-gray-text))",
+        },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
